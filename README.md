@@ -74,3 +74,22 @@ Website → Supabase Edge Function → `travel_enquiries` + notification webhook
 The webhook payload contains a ready-to-send `text` message plus structured `customer` and `trip` data.
 
 You can initially leave the webhook unset. Enquiries will still be saved to Supabase and the customer will see the on-screen confirmation.
+
+
+## Deploy the enquiry Edge Function
+
+The SQL file creates the table, but it does NOT deploy the Edge Function. From the project root, after installing/linking the Supabase CLI:
+
+```bash
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
+supabase functions deploy submit-enquiry
+```
+
+Then test:
+
+```bash
+supabase functions list
+```
+
+The function is configured with `verify_jwt = false` because the public travel form needs to submit without a customer account. The function still validates the payload and uses the server-side Supabase service key internally.

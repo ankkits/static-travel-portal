@@ -4,7 +4,6 @@ import { airports } from './data/airports'
 import { getActivePackages } from './services/content'
 import './styles.css'
 
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '919999999999'
 
 const fallbackPackages = [
   { id: 'f1', title: 'Dubai Escape', destination: 'Dubai, UAE', description: 'City break with flexible sightseeing and hotel options.', duration: '4N / 5D', starting_price: 39999, image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80' },
@@ -83,7 +82,38 @@ function App() {
     })
   }, [])
 
-  function requestFlights(e) {
+  async function submitEnquiry(details) {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-enquiry`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({
+        enquiry_type: details.enquiryType || 'flight',
+        customer_name: details.customerName,
+        phone: details.customerPhone,
+        email: details.customerEmail || null,
+        trip_type: details.trip || null,
+        origin_code: details.from?.match(/\(([A-Z]{3})\)/)?.[1] || null,
+        origin_city: details.from || null,
+        destination_code: details.to?.match(/\(([A-Z]{3})\)/)?.[1] || null,
+        destination_city: details.to || details.destination || null,
+        departure_date: details.departure || null,
+        return_date: details.returnDate && details.returnDate !== 'N/A' ? details.returnDate : null,
+        adults: details.adults || 1,
+        children: details.children || 0,
+        cabin: details.cabin || null,
+        package_id: details.packageId || null,
+        package_name: details.packageName || null
+      })
+    })
+    const result = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(result.error || `Request failed (${response.status})`)
+    return result
+  }
+
+  async function requestFlights(e) {
     e.preventDefault()
     setSubmitError('')
     setShowContactForm(true)
@@ -143,6 +173,40 @@ function App() {
     return body
   }
 
+  function startHolidayEnquiry(pkg) {
+    setSelectedPackage(pkg)
+    setEnquiryType('holiday')
+    setEnquiry(null)
+    window.scrollTo({ top: document.getElementById('flights')?.offsetTop || 0, behavior: 'smooth' })
+  }
+
+  async function submitHolidayEnquiry(e) {
+    e.preventDefault()
+    if (!customerName.trim() || !customerPhone.trim()) {
+      alert('Please enter your name and phone number so the travel team can contact you.')
+      return
+    }
+    const details = {
+      enquiryType: 'holiday',
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
+      customerEmail: customerEmail.trim(),
+      packageId: selectedPackage?.id || '',
+      packageName: selectedPackage?.title || '',
+      destination: selectedPackage?.destination || '',
+      description: selectedPackage?.description || '',
+      duration: selectedPackage?.duration || '',
+      startingPrice: selectedPackage?.starting_price || null
+    }
+    try {
+      await submitEnquiry(details)
+      setEnquiry(details)
+      window.scrollTo({ top: document.getElementById('enquiry-result')?.offsetTop || 0, behavior: 'smooth' })
+    } catch (error) {
+      alert(`We couldn't submit your enquiry. Please try again. ${error.message || ''}`)
+    }
+  }
+
   function resetEnquiry() {
     setEnquiry(null)
     setSubmitError('')
@@ -154,9 +218,6 @@ function App() {
     return `${d}/${m}/${y}`
   }
 
-  function generalWhatsApp(message = 'Hi, I would like help with a travel booking.') {
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer')
-  }
 
   return (
     <div>
@@ -168,7 +229,7 @@ function App() {
             <a href="#packages">Holidays</a>
             <a href="#support">Support</a>
           </nav>
-          <button className="nav-cta" onClick={() => generalWhatsApp()}>WhatsApp us</button>
+          <a className="nav-cta" href="#packages">Explore holidays</a>
         </div>
       </header>
 
@@ -180,14 +241,14 @@ function App() {
             <h1>Travel more.<br /><em>Worry less.</em></h1>
             <p className="hero-copy">Tell us where you want to go. Our team will find options, fares and packages that fit your trip.</p>
 
-            <form className="search-card" onSubmit={requestFlights}>
+            <form className="search-card" id="enquiry-form" onSubmit={enquiryType === 'holiday' ? submitHolidayEnquiry : requestFlights}>
               <div className="trip-tabs">
                 {['Round trip', 'One way'].map(t => (
                   <button type="button" key={t} className={trip === t ? 'active' : ''} onClick={() => setTrip(t)}>{t}</button>
                 ))}
               </div>
 
-              <div className="search-grid">
+              {enquiryType === 'flight' && <div className="search-grid">
                 <AirportInput label="From" value={from} onChange={setFrom} exclude={to.match(/\(([A-Z]{3})\)/)?.[1]} />
                 <div className="swap">⇄</div>
                 <AirportInput label="To" value={to} onChange={setTo} exclude={from.match(/\(([A-Z]{3})\)/)?.[1]} />
@@ -279,15 +340,9 @@ function App() {
                   <div className="detail-row"><span>Cabin</span><strong>{enquiry.cabin}</strong></div>
                 </div>
               </div>
-              <div className="share-preview">
-                <div className="panel-title">Message for the booking team</div>
-                <pre>{`NEW TRAVEL ENQUIRY\n\nCustomer: ${enquiry.customer_name}\nPhone: ${enquiry.customer_phone}${enquiry.customer_email ? `\nEmail: ${enquiry.customer_email}` : ''}\n\nTrip: ${enquiry.trip_type}\nFrom: ${enquiry.from_airport}\nTo: ${enquiry.to_airport}\nDeparture: ${formatDate(enquiry.departure_date)}\n${enquiry.trip_type === 'Round trip' ? `Return: ${formatDate(enquiry.return_date)}\n` : ''}Passengers: ${enquiry.adults} Adult(s), ${enquiry.children} Child(ren)\nCabin: ${enquiry.cabin}\n\nPlease search available options and call the customer back with the best fare.`}</pre>
+<pre>{`NEW TRAVEL ENQUIRY\n\nCustomer: ${enquiry.customer_name}\nPhone: ${enquiry.customer_phone}${enquiry.customer_email ? `\nEmail: ${enquiry.customer_email}` : ''}\n\nTrip: ${enquiry.trip_type}\nFrom: ${enquiry.from_airport}\nTo: ${enquiry.to_airport}\nDeparture: ${formatDate(enquiry.departure_date)}\n${enquiry.trip_type === 'Round trip' ? `Return: ${formatDate(enquiry.return_date)}\n` : ''}Passengers: ${enquiry.adults} Adult(s), ${enquiry.children} Child(ren)\nCabin: ${enquiry.cabin}\n\nPlease search available options and call the customer back with the best fare.`}</pre>
               </div>
-              <div className="result-actions">
-                <button className="primary-action" type="button" onClick={() => window.print()}>Print / Save enquiry</button>
-                <button className="secondary-action" type="button" onClick={resetEnquiry}>Start another enquiry</button>
-              </div>
-            </div>
+</div>
           </section>
         )}
 
@@ -304,7 +359,7 @@ function App() {
           <div className="container">
             <div className="section-head">
               <div><div className="eyebrow dark">CURATED GETAWAYS</div><h2>Popular holiday ideas</h2></div>
-              <button className="text-btn" onClick={() => generalWhatsApp('Hi, I would like to explore holiday packages.')}>Explore all →</button>
+              <button className="text-btn" onClick={() => document.getElementById('packages')?.scrollIntoView({behavior: 'smooth'})}>Explore all →</button>
             </div>
             <div className="package-grid">
               {packages.map(p => (
@@ -314,7 +369,7 @@ function App() {
                     <div className="package-meta"><span>{p.duration}</span><span>From ₹{Number(p.starting_price || 0).toLocaleString('en-IN')}</span></div>
                     <h3>{p.title}</h3>
                     <p>{p.destination} · {p.description}</p>
-                    <button onClick={() => generalWhatsApp(`Hi, I am interested in the ${p.title} package (${p.destination}). Please share details.`)}>Ask for details →</button>
+                    <button onClick={() => startHolidayEnquiry(p)}>Get a quote →</button>
                   </div>
                 </article>
               ))}
@@ -337,8 +392,8 @@ function App() {
 
         <section className="cta" id="support">
           <div className="container cta-inner">
-            <div><div className="eyebrow">NEED A HAND?</div><h2>Let’s plan your next trip.</h2><p>Send your requirements on WhatsApp and our team will take it from there.</p></div>
-            <button onClick={() => generalWhatsApp('Hi, I would like help planning a trip.')}>Chat on WhatsApp →</button>
+            <div><div className="eyebrow">NEED A HAND?</div><h2>Let’s plan your next trip.</h2><p>Share your requirements and our travel team will contact you with suitable options.</p></div>
+            <button onClick={() => document.getElementById('flights')?.scrollIntoView({behavior: 'smooth'})}>Start a travel enquiry →</button>
           </div>
         </section>
       </main>

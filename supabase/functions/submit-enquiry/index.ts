@@ -28,8 +28,9 @@ Deno.serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!
-    const secretKeys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}")
-    const secretKey = secretKeys.default || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
+    // Supabase provides this server-side secret to hosted Edge Functions.
+    // Never expose it in the React/Vite environment.
+    const secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
     if (!secretKey) return json({ error: "Server database configuration is incomplete" }, 500)
 
     const admin = createClient(supabaseUrl, secretKey)
