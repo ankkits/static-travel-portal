@@ -248,7 +248,8 @@ function App() {
                 ))}
               </div>
 
-              {enquiryType === 'flight' && <div className="search-grid">
+              {enquiryType === 'flight' && (
+                <div className="search-grid">
                 <AirportInput label="From" value={from} onChange={setFrom} exclude={to.match(/\(([A-Z]{3})\)/)?.[1]} />
                 <div className="swap">⇄</div>
                 <AirportInput label="To" value={to} onChange={setTo} exclude={from.match(/\(([A-Z]{3})\)/)?.[1]} />
@@ -281,7 +282,8 @@ function App() {
                   </select>
                 </div>
                 <button className="search-btn" type="submit">Find flights <span>→</span></button>
-              </div>
+                </div>
+              )}
               <div className="manual-note">Your request is saved for the travel team. No WhatsApp window is opened automatically.</div>{submitError && <div className="form-error">{submitError}</div>}
             </form>
           </div>
