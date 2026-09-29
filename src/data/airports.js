@@ -1,0 +1,21 @@
+export const airports = [
+  { code: 'HYD', city: 'Hyderabad', name: 'Rajiv Gandhi International Airport', country: 'India' },
+  { code: 'DEL', city: 'Delhi', name: 'Indira Gandhi International Airport', country: 'India' },
+  { code: 'BOM', city: 'Mumbai', name: 'Chhatrapati Shivaji Maharaj International Airport', country: 'India' },
+  { code: 'BLR', city: 'Bengaluru', name: 'Kempegowda International Airport', country: 'India' },
+  { code: 'MAA', city: 'Chennai', name: 'Chennai International Airport', country: 'India' },
+  { code: 'CCU', city: 'Kolkata', name: 'Netaji Subhas Chandra Bose International Airport', country: 'India' },
+  { code: 'GOI', city: 'Goa', name: 'Manohar International Airport', country: 'India' },
+  { code: 'DXB', city: 'Dubai', name: 'Dubai International Airport', country: 'UAE' },
+  { code: 'AUH', city: 'Abu Dhabi', name: 'Zayed International Airport', country: 'UAE' },
+  { code: 'DOH', city: 'Doha', name: 'Hamad International Airport', country: 'Qatar' },
+  { code: 'SIN', city: 'Singapore', name: 'Singapore Changi Airport', country: 'Singapore' },
+  { code: 'KUL', city: 'Kuala Lumpur', name: 'Kuala Lumpur International Airport', country: 'Malaysia' },
+  { code: 'MNL', city: 'Manila', name: 'Ninoy Aquino International Airport', country: 'Philippines' },
+  { code: 'BKK', city: 'Bangkok', name: 'Suvarnabhumi Airport', country: 'Thailand' },
+  { code: 'LHR', city: 'London', name: 'Heathrow Airport', country: 'United Kingdom' },
+  { code: 'JFK', city: 'New York', name: 'John F. Kennedy International Airport', country: 'USA' },
+  { code: 'YYZ', city: 'Toronto', name: 'Toronto Pearson International Airport', country: 'Canada' },
+  { code: 'MEL', city: 'Melbourne', name: 'Melbourne Airport', country: 'Australia' },
+  { code: 'SYD', city: 'Sydney', name: 'Sydney Kingsford Smith Airport', country: 'Australia' }
+]
