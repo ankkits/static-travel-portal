@@ -65,6 +65,7 @@ function App() {
   const [children, setChildren] = useState(0)
   const [cabin, setCabin] = useState('Economy')
   const [customerName, setCustomerName] = useState('')
+  const [showContactForm, setShowContactForm] = useState(false)
   const [customerPhone, setCustomerPhone] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [enquiry, setEnquiry] = useState(null)
@@ -82,7 +83,14 @@ function App() {
     })
   }, [])
 
-  async function requestFlights(e) {
+  function requestFlights(e) {
+    e.preventDefault()
+    setSubmitError('')
+    setShowContactForm(true)
+    window.scrollTo({ top: document.getElementById('contact-step')?.offsetTop || 0, behavior: 'smooth' })
+  }
+
+  async function submitContactDetails(e) {
     e.preventDefault()
     setSubmitError('')
 
@@ -111,6 +119,7 @@ function App() {
       const result = await submitEnquiry(payload)
       if (result.error) throw new Error(result.error)
       setEnquiry({ ...payload, id: result.id, created_at: result.created_at })
+      setShowContactForm(false)
       window.scrollTo({ top: document.getElementById('enquiry-result')?.offsetTop || 0, behavior: 'smooth' })
     } catch (err) {
       setSubmitError(err.message || 'We could not save your enquiry. Please try again.')
@@ -178,21 +187,6 @@ function App() {
                 ))}
               </div>
 
-              <div className="customer-grid">
-                <div className="field">
-                  <label>Your name *</label>
-                  <input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Full name" />
-                </div>
-                <div className="field">
-                  <label>Phone number *</label>
-                  <input type="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="+91 98765 43210" />
-                </div>
-                <div className="field">
-                  <label>Email <span className="optional">(optional)</span></label>
-                  <input type="email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="you@example.com" />
-                </div>
-              </div>
-
               <div className="search-grid">
                 <AirportInput label="From" value={from} onChange={setFrom} exclude={to.match(/\(([A-Z]{3})\)/)?.[1]} />
                 <div className="swap">⇄</div>
@@ -225,12 +219,36 @@ function App() {
                     <option>First</option>
                   </select>
                 </div>
-                <button className="search-btn" type="submit" disabled={submitting}>{submitting ? 'Saving…' : 'Submit enquiry'} <span>→</span></button>
+                <button className="search-btn" type="submit">Find flights <span>→</span></button>
               </div>
               <div className="manual-note">Your request is saved for the travel team. No WhatsApp window is opened automatically.</div>{submitError && <div className="form-error">{submitError}</div>}
             </form>
           </div>
         </section>
+
+        {showContactForm && !enquiry && (
+          <section className="contact-step" id="contact-step">
+            <div className="container">
+              <div className="contact-step-inner">
+                <div>
+                  <div className="eyebrow dark">ALMOST THERE</div>
+                  <h2>Where should we send your options?</h2>
+                  <p>We've captured your travel request. Give our booking team a way to reach you and we'll take it from here.</p>
+                </div>
+                <form className="contact-form" onSubmit={submitContactDetails}>
+                  <div className="contact-fields">
+                    <div className="field"><label>Full name *</label><input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Your name" autoComplete="name" /></div>
+                    <div className="field"><label>Mobile number *</label><input type="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="+91 98765 43210" autoComplete="tel" /></div>
+                    <div className="field"><label>Email <span className="optional">(optional)</span></label><input type="email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" /></div>
+                  </div>
+                  <div className="request-mini"><strong>{from} → {to}</strong><span>{trip} · {adults} Adult(s), {children} Child(ren) · {cabin}</span></div>
+                  {submitError && <div className="submit-error">{submitError}</div>}
+                  <div className="contact-actions"><button className="primary-action" type="submit" disabled={submitting}>{submitting ? 'Saving enquiry…' : 'Get my flight options →'}</button><button className="secondary-action" type="button" onClick={() => setShowContactForm(false)}>Edit search</button></div>
+                </form>
+              </div>
+            </div>
+          </section>
+        )}
 
         {enquiry && (
           <section className="enquiry-result" id="enquiry-result">

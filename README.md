@@ -6,7 +6,7 @@ A Vite/React static travel portal designed for Render Static Site hosting.
 
 Browser/React -> Supabase HTTPS API -> PostgreSQL
 
-Flight requests currently go to WhatsApp. A future live flight supplier API should be called from a backend/serverless function so supplier credentials never reach the browser.
+Customers first enter their travel search. Only after the search is captured do we ask for name/phone/email, then submit the complete enquiry to Supabase through an Edge Function. The confirmation is shown on screen; the site does not automatically open WhatsApp.
 
 ## Local setup
 
@@ -42,7 +42,7 @@ Never put a PostgreSQL password or Supabase service-role key into VITE variables
 
 ## Enquiries and messaging
 
-The flight form no longer opens WhatsApp. It collects customer contact details and the search request, shows a confirmation/callback summary on screen, and sends the enquiry to the Supabase `submit-enquiry` Edge Function.
+The flight form no longer opens WhatsApp. It captures the search first, then collects customer contact details in a second step. It shows a confirmation/callback summary on screen and sends the complete enquiry to the Supabase `submit-enquiry` Edge Function.
 
 The Edge Function stores the enquiry in `travel_enquiries`. If `NOTIFICATION_WEBHOOK_URL` is configured, it also POSTs the enquiry to that webhook. This makes the notification layer provider-neutral: you can connect n8n, Make, Zapier, a WhatsApp provider, or another team messaging service without exposing credentials in the browser.
 
