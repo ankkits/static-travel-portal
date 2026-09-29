@@ -40,16 +40,13 @@ The SQL creates the holiday_packages table, enables RLS, permits public reads on
 
 Never put a PostgreSQL password or Supabase service-role key into VITE variables.
 
-## WhatsApp
+## Enquiries and messaging
 
-For the MVP, the site opens a WhatsApp chat using a wa.me link with a prefilled booking request.
+The flight form no longer opens WhatsApp. It collects customer contact details and the search request, shows a confirmation/callback summary on screen, and sends the enquiry to the Supabase `submit-enquiry` Edge Function.
 
-`VITE_WHATSAPP_NUMBER` should be digits only, including country code. Example:
-`919876543210`
+The Edge Function stores the enquiry in `travel_enquiries`. If `NOTIFICATION_WEBHOOK_URL` is configured, it also POSTs the enquiry to that webhook. This makes the notification layer provider-neutral: you can connect n8n, Make, Zapier, a WhatsApp provider, or another team messaging service without exposing credentials in the browser.
 
-This does not require the WhatsApp Business API. The receiving WhatsApp account/group must be able to receive the chat.
-
-For a team/group workflow, a simple operational approach is to use one business/team number and have agents handle the incoming requests. Direct browser-to-WhatsApp-group messaging is not supported by a normal wa.me link.
+For direct WhatsApp/Instagram messaging, use the provider's server-side API credentials only inside the Edge Function or an automation service. Do not put those secrets in Vite/React environment variables.
 
 ## Future flight API
 
@@ -58,3 +55,22 @@ Keep supplier/API credentials out of React. Add a backend such as an Azure Funct
 React -> Azure Function -> supplier API
 
 The current UI can later call that backend without changing the overall Render deployment.
+
+
+## Supabase Edge Function deployment
+
+1. Run `supabase/schema.sql` in the Supabase SQL Editor.
+2. In Supabase Dashboard, create/deploy the `submit-enquiry` Edge Function using `supabase/functions/submit-enquiry/index.ts`.
+3. The function uses Supabase server-side secrets to insert the enquiry. Supabase provides those secrets to Edge Functions; never expose a secret/service key in the browser.
+4. Optional: set the production secret `NOTIFICATION_WEBHOOK_URL` in Supabase Edge Function Secrets.
+5. The browser only calls `/functions/v1/submit-enquiry`.
+
+### Notification workflow
+
+Recommended first production workflow:
+
+Website → Supabase Edge Function → `travel_enquiries` + notification webhook → team messaging service
+
+The webhook payload contains a ready-to-send `text` message plus structured `customer` and `trip` data.
+
+You can initially leave the webhook unset. Enquiries will still be saved to Supabase and the customer will see the on-screen confirmation.

@@ -64,6 +64,12 @@ function App() {
   const [adults, setAdults] = useState(1)
   const [children, setChildren] = useState(0)
   const [cabin, setCabin] = useState('Economy')
+  const [customerName, setCustomerName] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [customerEmail, setCustomerEmail] = useState('')
+  const [enquiry, setEnquiry] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [packages, setPackages] = useState(fallbackPackages)
   const [contentSource, setContentSource] = useState('fallback')
 
@@ -76,23 +82,67 @@ function App() {
     })
   }, [])
 
-  function requestFlights(e) {
+  async function requestFlights(e) {
     e.preventDefault()
-    const message = [
-      '✈️ NEW FLIGHT REQUEST',
-      '',
-      `Trip: ${trip}`,
-      `From: ${from || 'Not selected'}`,
-      `To: ${to || 'Not selected'}`,
-      `Departure: ${departure || 'Flexible'}`,
-      trip === 'Round trip' ? `Return: ${returnDate || 'Flexible'}` : null,
-      `Passengers: ${adults} Adult(s), ${children} Child(ren)`,
-      `Cabin: ${cabin}`,
-      '',
-      'Please share available options and the best fare.'
-    ].filter(Boolean).join('\n')
+    setSubmitError('')
 
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer')
+    if (!customerName.trim() || !customerPhone.trim()) {
+      setSubmitError('Please enter your name and phone number so the travel team can call you back.')
+      return
+    }
+
+    const payload = {
+      customer_name: customerName.trim(),
+      customer_phone: customerPhone.trim(),
+      customer_email: customerEmail.trim() || null,
+      trip_type: trip,
+      from_airport: from || 'Not selected',
+      to_airport: to || 'Not selected',
+      departure_date: departure || null,
+      return_date: trip === 'Round trip' ? (returnDate || null) : null,
+      adults,
+      children,
+      cabin,
+      honeypot: ''
+    }
+
+    setSubmitting(true)
+    try {
+      const result = await submitEnquiry(payload)
+      if (result.error) throw new Error(result.error)
+      setEnquiry({ ...payload, id: result.id, created_at: result.created_at })
+      window.scrollTo({ top: document.getElementById('enquiry-result')?.offsetTop || 0, behavior: 'smooth' })
+    } catch (err) {
+      setSubmitError(err.message || 'We could not save your enquiry. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function submitEnquiry(payload) {
+    const url = import.meta.env.VITE_SUPABASE_URL
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+    if (!url || !key) throw new Error('Supabase is not configured yet.')
+
+    const response = await fetch(`${url}/functions/v1/submit-enquiry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: key },
+      body: JSON.stringify(payload)
+    })
+    const body = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(body.error || 'Unable to submit enquiry')
+    return body
+  }
+
+  function resetEnquiry() {
+    setEnquiry(null)
+    setSubmitError('')
+  }
+
+  function formatDate(value) {
+    if (!value) return 'Flexible'
+    const [y, m, d] = value.split('-')
+    return `${d}/${m}/${y}`
   }
 
   function generalWhatsApp(message = 'Hi, I would like help with a travel booking.') {
@@ -128,6 +178,21 @@ function App() {
                 ))}
               </div>
 
+              <div className="customer-grid">
+                <div className="field">
+                  <label>Your name *</label>
+                  <input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Full name" />
+                </div>
+                <div className="field">
+                  <label>Phone number *</label>
+                  <input type="tel" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="+91 98765 43210" />
+                </div>
+                <div className="field">
+                  <label>Email <span className="optional">(optional)</span></label>
+                  <input type="email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="you@example.com" />
+                </div>
+              </div>
+
               <div className="search-grid">
                 <AirportInput label="From" value={from} onChange={setFrom} exclude={to.match(/\(([A-Z]{3})\)/)?.[1]} />
                 <div className="swap">⇄</div>
@@ -160,12 +225,53 @@ function App() {
                     <option>First</option>
                   </select>
                 </div>
-                <button className="search-btn" type="submit">Find flights <span>→</span></button>
+                <button className="search-btn" type="submit" disabled={submitting}>{submitting ? 'Saving…' : 'Submit enquiry'} <span>→</span></button>
               </div>
-              <div className="manual-note">Currently request-based booking · Live supplier API can be connected later.</div>
+              <div className="manual-note">Your request is saved for the travel team. No WhatsApp window is opened automatically.</div>{submitError && <div className="form-error">{submitError}</div>}
             </form>
           </div>
         </section>
+
+        {enquiry && (
+          <section className="enquiry-result" id="enquiry-result">
+            <div className="container">
+              <div className="result-header">
+                <div>
+                  <div className="eyebrow dark">ENQUIRY SUBMITTED</div>
+                  <h2>Your request has been recorded</h2>
+                  <p>The booking team now has the customer contact details and the complete travel search request. They can use this information to search fares and call the customer back.</p>
+                </div>
+                <div className="result-badge">✓ Saved</div>
+              </div>
+              <div className="enquiry-id">Enquiry ID: <strong>{enquiry.id}</strong></div>
+              <div className="enquiry-grid">
+                <div className="detail-panel">
+                  <div className="panel-title">Customer to contact</div>
+                  <div className="detail-row"><span>Name</span><strong>{enquiry.customer_name}</strong></div>
+                  <div className="detail-row"><span>Phone</span><strong>{enquiry.customer_phone}</strong></div>
+                  {enquiry.customer_email && <div className="detail-row"><span>Email</span><strong>{enquiry.customer_email}</strong></div>}
+                </div>
+                <div className="detail-panel">
+                  <div className="panel-title">Flight search request</div>
+                  <div className="route"><div><small>FROM</small><strong>{enquiry.from_airport}</strong></div><div className="route-arrow">→</div><div><small>TO</small><strong>{enquiry.to_airport}</strong></div></div>
+                  <div className="detail-row"><span>Trip type</span><strong>{enquiry.trip_type}</strong></div>
+                  <div className="detail-row"><span>Departure</span><strong>{formatDate(enquiry.departure_date)}</strong></div>
+                  {enquiry.trip_type === 'Round trip' && <div className="detail-row"><span>Return</span><strong>{formatDate(enquiry.return_date)}</strong></div>}
+                  <div className="detail-row"><span>Passengers</span><strong>{enquiry.adults} Adult(s), {enquiry.children} Child(ren)</strong></div>
+                  <div className="detail-row"><span>Cabin</span><strong>{enquiry.cabin}</strong></div>
+                </div>
+              </div>
+              <div className="share-preview">
+                <div className="panel-title">Message for the booking team</div>
+                <pre>{`NEW TRAVEL ENQUIRY\n\nCustomer: ${enquiry.customer_name}\nPhone: ${enquiry.customer_phone}${enquiry.customer_email ? `\nEmail: ${enquiry.customer_email}` : ''}\n\nTrip: ${enquiry.trip_type}\nFrom: ${enquiry.from_airport}\nTo: ${enquiry.to_airport}\nDeparture: ${formatDate(enquiry.departure_date)}\n${enquiry.trip_type === 'Round trip' ? `Return: ${formatDate(enquiry.return_date)}\n` : ''}Passengers: ${enquiry.adults} Adult(s), ${enquiry.children} Child(ren)\nCabin: ${enquiry.cabin}\n\nPlease search available options and call the customer back with the best fare.`}</pre>
+              </div>
+              <div className="result-actions">
+                <button className="primary-action" type="button" onClick={() => window.print()}>Print / Save enquiry</button>
+                <button className="secondary-action" type="button" onClick={resetEnquiry}>Start another enquiry</button>
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="trust">
           <div className="container trust-grid">
