@@ -66,6 +66,7 @@ function App() {
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
+  const [tentativeDates, setTentativeDates] = useState('')
   const [showContactForm, setShowContactForm] = useState(false)
   const [enquiryType, setEnquiryType] = useState('flight')
   const [selectedPackage, setSelectedPackage] = useState(null)
@@ -130,6 +131,7 @@ function App() {
   }
 
   function startHolidayEnquiry(pkg) {
+    setTentativeDates('')
     setSelectedPackage(pkg)
     setEnquiryType('holiday')
     setEnquiry(null)
@@ -162,7 +164,8 @@ function App() {
       cabin,
       packageId: selectedPackage?.id || null,
       packageName: selectedPackage?.title || null,
-      destination: selectedPackage?.destination || null
+      destination: selectedPackage?.destination || null,
+      tentativeDates: enquiryType === 'holiday' ? tentativeDates.trim() : ''
     }
 
     setSubmitting(true)
@@ -179,6 +182,7 @@ function App() {
   }
 
   function resetEnquiry() {
+    setTentativeDates('')
     setEnquiry(null)
     setSubmitError('')
     setShowContactForm(false)
@@ -281,10 +285,21 @@ function App() {
                   </div>
 
                   {enquiryType === 'holiday' && selectedPackage && (
-                    <div className="request-mini">
-                      <strong>{selectedPackage.title}</strong>
-                      <span>{selectedPackage.destination} · {selectedPackage.duration}</span>
-                    </div>
+                    <>
+                      <div className="request-mini">
+                        <strong>{selectedPackage.title}</strong>
+                        <span>{selectedPackage.destination} · {selectedPackage.duration}</span>
+                      </div>
+                      <div className="field">
+                        <label>Tentative travel dates <span className="optional">(optional)</span></label>
+                        <input
+                          type="text"
+                          value={tentativeDates}
+                          onChange={e => setTentativeDates(e.target.value)}
+                          placeholder="e.g. 10–15 December 2026, mid-January, or flexible"
+                        />
+                      </div>
+                    </>
                   )}
 
                   {enquiryType === 'flight' && (
@@ -333,6 +348,7 @@ function App() {
                     <>
                       <div className="detail-row"><span>Holiday</span><strong>{enquiry.packageName}</strong></div>
                       <div className="detail-row"><span>Destination</span><strong>{enquiry.destination}</strong></div>
+                      {enquiry.tentativeDates && <div className="detail-row"><span>Tentative dates</span><strong>{enquiry.tentativeDates}</strong></div>}
                     </>
                   ) : (
                     <>
