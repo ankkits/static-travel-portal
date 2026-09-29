@@ -164,7 +164,31 @@ export const airports = [
   // Lakshadweep
   { code: 'AGX', city: 'Agatti', name: 'Agatti Airport', country: 'India' },
 
+	// =========================
+	// UNION TERRITORIES
+	// =========================
 
+	// Delhi
+	{ code: 'DEL', city: 'New Delhi', name: 'Indira Gandhi International Airport', country: 'India' },
+
+	// Chandigarh
+	{ code: 'IXC', city: 'Chandigarh', name: 'Chandigarh International Airport', country: 'India' },
+
+	// Jammu & Kashmir
+	{ code: 'SXR', city: 'Srinagar', name: 'Sheikh ul Alam International Airport', country: 'India' },
+	{ code: 'IXJ', city: 'Jammu', name: 'Jammu Airport', country: 'India' },
+
+	// Ladakh
+	{ code: 'IXL', city: 'Leh', name: 'Kushok Bakula Rimpochee Airport', country: 'India' },
+
+	// Andaman & Nicobar Islands
+	{ code: 'IXZ', city: 'Port Blair', name: 'Veer Savarkar International Airport', country: 'India' },
+
+	// Lakshadweep
+	{ code: 'AGX', city: 'Agatti', name: 'Agatti Airport', country: 'India' },
+
+	// Puducherry
+	{ code: 'PNY', city: 'Puducherry', name: 'Puducherry Airport', country: 'India' }
   // =========================
   // MAJOR INTERNATIONAL
   // =========================
