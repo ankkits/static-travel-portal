@@ -113,7 +113,9 @@ function App() {
         children: details.children || 0,
         cabin: details.cabin || null,
         package_id: details.packageId || null,
-        package_name: details.packageName || null
+        package_name: details.packageName || null,
+		tentative_dates: details.tentativeDates || null
+		
       })
     })
 
@@ -122,18 +124,37 @@ function App() {
     return body
   }
 
-  function requestFlights(e) {
-    e.preventDefault()
-    setSubmitError('')
-    setEnquiryType('flight')
-    setShowContactForm(true)
-	setTimeout(() => {
-		document.getElementById('contact-step')?.scrollIntoView({
-		behavior: 'smooth',
-		block: 'start'
-		})
-	}, 50)
+ function requestFlights(e) {
+  e.preventDefault()
+  setSubmitError('')
+
+  if (!departure) {
+    setSubmitError('Please select your departure date.')
+    return
   }
+
+  if (trip === 'Round trip') {
+    if (!returnDate) {
+      setSubmitError('Please select your return date for a round trip.')
+      return
+    }
+
+    if (returnDate < departure) {
+      setSubmitError('Return date cannot be before the departure date.')
+      return
+    }
+  }
+
+  setEnquiryType('flight')
+  setShowContactForm(true)
+
+  setTimeout(() => {
+    document.getElementById('contact-step')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    })
+  }, 50)
+}
 
   function startHolidayEnquiry(pkg) {
     setTentativeDates('')
@@ -224,15 +245,25 @@ function App() {
         <section className="hero" id="flights">
           <div className="hero-bg" />
           <div className="container hero-content">
-            <div className="eyebrow">FLIGHTS · HOLIDAYS · HUMAN SUPPORT</div>
+            <div className="eyebrow">FLIGHTS · HOLIDAYS · EXPERT GUIDANCE </div>
             <h1>Travel more.<br /><em>Worry less.</em></h1>
             <p className="hero-copy">Tell us where you want to go. Our team will find travel options, fares and packages that fit your trip.</p>
 
             <form className="search-card" id="enquiry-form" onSubmit={requestFlights}>
               <div className="trip-tabs">
-                {['Round trip', 'One way'].map(t => (
-                  <button type="button" key={t} className={trip === t ? 'active' : ''} onClick={() => setTrip(t)}>{t}</button>
-                ))}
+				{['Round trip', 'One way'].map(t => (
+				  <button
+					type="button"
+					key={t}
+					className={trip === t ? 'active' : ''}
+					onClick={() => {
+					  setTrip(t)
+					  if (t === 'One way') setReturnDate('')
+					}}
+				  >
+					{t}
+				  </button>
+				))}
               </div>
 
               <div className="search-grid">
@@ -279,7 +310,7 @@ function App() {
               <div className="contact-step-inner">
                 <div>
                   <div className="eyebrow dark">ALMOST THERE</div>
-                  <h2>{enquiryType === 'holiday' ? 'Tell us how to reach you' : 'Where should we reach you with your travel itinerary?'}</h2>
+                  <h2>{enquiryType === 'holiday' ? 'Tell us how to reach you' : 'Where should we reach out with your travel itinerary?'}</h2>
                   <p>
                     {enquiryType === 'holiday'
                       ? `Share your details and we’ll get back to you about ${selectedPackage?.title || 'this holiday'}.`
@@ -385,7 +416,7 @@ function App() {
             <div><b>01</b><span>Human assistance</span><small>Travel experts handling your request</small></div>
             <div><b>02</b><span>Quick response</span><small>We reach out so you stay in control</small></div>
             <div><b>03</b><span>Flexible options</span><small>Flights, hotels & holidays</small></div>
-            <div><b>04</b><span>Personal support</span><small>Clear, competitive pricing from enquiry to ticket with no hidden surprises </small></div>
+            <div><b>04</b><span>Personal support</span><small>Clear, competitive pricing with no hidden surprises </small></div>
           </div>
         </section>
 
