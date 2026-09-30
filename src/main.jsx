@@ -462,8 +462,46 @@ function App() {
           </div>
         </section>
       </main>
+	<footer>
+        <div className="container footer-inner">
+          <span>
+            © {new Date().getFullYear()} Shreeji Travelogue. All rights reserved.
+          </span>
 
-      <footer><div className="container footer-inner"><span>© {new Date().getFullYear()} TravelDesk</span><span>Flights · Hotels · Holidays</span></div></footer>
+          <div className="footer-contact">
+            <div className="footer-services">
+              Flights · Hotels · Holidays
+            </div>
+
+            <div className="footer-socials">
+			<a
+				  href="https://www.instagram.com/shreejitravelogue/"
+				  target="_blank"
+				  rel="noopener noreferrer"
+				  aria-label="Instagram"
+				  title="@shreejitravelogue">
+					Instagram
+			</a>
+
+        <a
+			  href="https://x.com/shreejitravelz"
+			  target="_blank"
+			  rel="noopener noreferrer"
+			  aria-label="X"
+			  title="@shreejitravelz">
+				X
+        </a>
+
+        <a
+			  href="mailto:shreejitravelogue@gmail.com"
+			  aria-label="Email"
+			  title="shreejitravelogue@gmail.com">
+          Email
+        </a>
+            </div>
+          </div>
+        </div>
+     </footer>
     </div>
   )
 }
