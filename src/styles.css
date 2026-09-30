@@ -109,7 +109,7 @@ button { cursor: pointer; }
 .cta p { color: #64736f; margin: 0; }
 .cta button { border: 0; background: #087d6b; color: #fff; padding: 14px 20px; border-radius: 10px; font-weight: 700; white-space: nowrap; }
 footer { background: #0b1220; color: rgba(255,255,255,.5); font-size: 11px; }
-.footer-inner { padding: 24px 0; display: flex; justify-content: space-between; }
+.footer-inner { padding: 24px 0; display: flex; justify-content: space-between; align-items: center; }
 .footer-contact {
   display: flex;
   align-items: center;

@@ -480,7 +480,7 @@ function App() {
 				  rel="noopener noreferrer"
 				  aria-label="Instagram"
 				  title="@shreejitravelogue">
-					Instagram
+					 <img src="/images/branding/instagram.svg" alt="Instagram" />
 			</a>
 
         <a
@@ -489,14 +489,14 @@ function App() {
 			  rel="noopener noreferrer"
 			  aria-label="X"
 			  title="@shreejitravelz">
-				X
+				 <img src="/images/branding/x.svg" alt="X" />
         </a>
 
         <a
 			  href="mailto:shreejitravelogue@gmail.com"
 			  aria-label="Email"
 			  title="shreejitravelogue@gmail.com">
-          Email
+          <img src="/images/branding/gmail.svg" alt="Email" />
         </a>
             </div>
           </div>
