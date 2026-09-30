@@ -127,7 +127,12 @@ function App() {
     setSubmitError('')
     setEnquiryType('flight')
     setShowContactForm(true)
-    window.scrollTo({ top: document.getElementById('contact-step')?.offsetTop || 0, behavior: 'smooth' })
+	setTimeout(() => {
+		document.getElementById('contact-step')?.scrollIntoView({
+		behavior: 'smooth',
+		block: 'start'
+		})
+	}, 50)
   }
 
   function startHolidayEnquiry(pkg) {
@@ -137,7 +142,12 @@ function App() {
     setEnquiry(null)
     setSubmitError('')
     setShowContactForm(true)
-    window.scrollTo({ top: document.getElementById('contact-step')?.offsetTop || 0, behavior: 'smooth' })
+	setTimeout(() => {
+		document.getElementById('contact-step')?.scrollIntoView({
+		behavior: 'smooth',
+		block: 'start'
+		})
+	}, 50)
   }
 
   async function submitContactDetails(e) {
@@ -200,7 +210,7 @@ function App() {
     <div>
       <header className="nav">
         <div className="container nav-inner">
-          <div className="brand"><span className="brand-mark">✈</span> Travel<span>Desk</span></div>
+          <div className="brand"><img src="/images/branding/logo.jpg" alt="Travel" /></div>
           <nav>
             <a href="#flights">Flights</a>
             <a href="#packages">Holidays</a>
@@ -216,7 +226,7 @@ function App() {
           <div className="container hero-content">
             <div className="eyebrow">FLIGHTS · HOLIDAYS · HUMAN SUPPORT</div>
             <h1>Travel more.<br /><em>Worry less.</em></h1>
-            <p className="hero-copy">Tell us where you want to go. Our team will find options, fares and packages that fit your trip.</p>
+            <p className="hero-copy">Tell us where you want to go. Our team will find travel options, fares and packages that fit your trip.</p>
 
             <form className="search-card" id="enquiry-form" onSubmit={requestFlights}>
               <div className="trip-tabs">
@@ -269,7 +279,7 @@ function App() {
               <div className="contact-step-inner">
                 <div>
                   <div className="eyebrow dark">ALMOST THERE</div>
-                  <h2>{enquiryType === 'holiday' ? 'Tell us how to reach you' : 'Where should we send your options?'}</h2>
+                  <h2>{enquiryType === 'holiday' ? 'Tell us how to reach you' : 'Where should we reach you with your travel itinerary?'}</h2>
                   <p>
                     {enquiryType === 'holiday'
                       ? `Share your details and we’ll get back to you about ${selectedPackage?.title || 'this holiday'}.`
@@ -372,10 +382,10 @@ function App() {
 
         <section className="trust">
           <div className="container trust-grid">
-            <div><b>01</b><span>Human assistance</span><small>Real people handling your request</small></div>
-            <div><b>02</b><span>Quick response</span><small>Options shared directly with you</small></div>
+            <div><b>01</b><span>Human assistance</span><small>Travel experts handling your request</small></div>
+            <div><b>02</b><span>Quick response</span><small>We reach out so you stay in control</small></div>
             <div><b>03</b><span>Flexible options</span><small>Flights, hotels & holidays</small></div>
-            <div><b>04</b><span>Personal support</span><small>From enquiry to ticket</small></div>
+            <div><b>04</b><span>Personal support</span><small>Clear, competitive pricing from enquiry to ticket with no hidden surprises </small></div>
           </div>
         </section>
 
@@ -408,7 +418,7 @@ function App() {
             <h2>From a flight search to a full holiday.</h2>
             <div className="service-grid">
               <div><span>✈</span><h3>Flights</h3><p>Domestic and international flight requests with human assistance.</p></div>
-              <div><span>⌂</span><h3>Hotels</h3><p>Share your destination and dates and we will help shortlist options.</p></div>
+              <div><span>⌂</span><h3>Hotels</h3><p>Share your destination and dates and we will help shortlist travel options.</p></div>
               <div><span>✦</span><h3>Holiday packages</h3><p>Flexible itineraries for couples, families and groups.</p></div>
             </div>
           </div>
@@ -416,7 +426,7 @@ function App() {
 
         <section className="cta" id="support">
           <div className="container cta-inner">
-            <div><div className="eyebrow">NEED A HAND?</div><h2>Let’s plan your next trip.</h2><p>Share your requirements and our travel team will contact you with suitable options.</p></div>
+            <div><div className="eyebrow">NEED A HAND?</div><h2>Let’s plan your next trip.</h2><p>Share your requirements and our travel team will contact you with suitable travel options.</p></div>
             <button type="button" onClick={() => document.getElementById('flights')?.scrollIntoView({behavior: 'smooth'})}>Start a travel enquiry →</button>
           </div>
         </section>
