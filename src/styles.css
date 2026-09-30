@@ -10,9 +10,9 @@ button { cursor: pointer; }
 .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
 .nav { position: absolute; top: 0; left: 0; right: 0; z-index: 10; color: #fff; }
 .nav-inner { height: 82px; display: flex; align-items: center; justify-content: space-between; }
-.brand { font-size: 22px; font-weight: 700; letter-spacing: -.7px; }
-.brand span:last-child { color: #a7e2d3; }
-.brand-mark { display: inline-grid; place-items: center; width: 32px; height: 32px; margin-right: 8px; border-radius: 10px; background: rgba(255,255,255,.14); }
+.brand { display: flex; align-items: center; }
+.brand img { width: 155px;  height: 62px;  object-fit: contain; display: block; }
+@media (max-width: 768px) { .brand img { width: 125px; height: 50px;}}
 .nav nav { display: flex; gap: 30px; }
 .nav a { color: rgba(255,255,255,.88); text-decoration: none; font-size: 14px; }
 .nav-cta { border: 1px solid rgba(255,255,255,.45); background: rgba(255,255,255,.1); color: #fff; padding: 11px 17px; border-radius: 10px; }

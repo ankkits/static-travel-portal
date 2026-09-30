@@ -210,7 +210,7 @@ function App() {
     <div>
       <header className="nav">
         <div className="container nav-inner">
-          <div className="brand"><img src="/images/branding/logo.jpg" alt="Travel" /></div>
+          <div className="brand"><img src="/images/branding/logo-web.png" alt="Shreeji Travelogue" /></div>
           <nav>
             <a href="#flights">Flights</a>
             <a href="#packages">Holidays</a>
