@@ -16,18 +16,50 @@ function codeFrom(value) { return value?.match(/\(([A-Z0-9]{3})\)/)?.[1] || null
 function LocationInput({ label, value, onChange, excludeCode, mode = 'all', placeholder = 'City or airport' }) {
   const [open, setOpen] = useState(false)
   const results = searchLocations(value, { mode, excludeCode })
+  const typedValue = value.trim()
+  const canUseTypedDestination = mode === 'hotel' && typedValue.length >= 2
+
   return (
     <div className="field airport-field">
       <label>{label}</label>
-      <input value={value} onFocus={() => setOpen(true)} onChange={e => { onChange(e.target.value); setOpen(true) }} placeholder={placeholder} autoComplete="off" />
-      {open && results.length > 0 && (
+      <input
+        value={value}
+        onFocus={() => setOpen(true)}
+        onChange={e => { onChange(e.target.value); setOpen(true) }}
+        placeholder={placeholder}
+        autoComplete="off"
+      />
+      {open && (results.length > 0 || canUseTypedDestination) && (
         <div className="suggestions">
           {results.map(item => (
-            <button key={`${item.type}-${item.id}`} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { onChange(item.type === 'airport' ? `${item.city} (${item.code})` : `${item.name}, ${item.country}`); setOpen(false) }}>
+            <button
+              key={`${item.type}-${item.id}`}
+              type="button"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => {
+                onChange(item.type === 'airport' ? `${item.city} (${item.code})` : `${item.name}, ${item.country}`)
+                setOpen(false)
+              }}
+            >
               <span className="airport-code">{item.type === 'airport' ? item.code : item.type === 'hotel' ? 'HOTEL' : 'CITY'}</span>
               <span><strong>{item.name}</strong><small>{item.type === 'airport' ? item.name : `${item.country} · ${item.type === 'hotel' ? 'Hotel destination' : 'City'}`}</small></span>
             </button>
           ))}
+
+          {canUseTypedDestination && (
+            <button
+              className="location-fallback"
+              type="button"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => { onChange(typedValue); setOpen(false) }}
+            >
+              <span className="airport-code fallback-check">✓</span>
+              <span>
+                <strong>Use “{typedValue}” as entered</strong>
+                <small>{results.length ? 'Can’t find your exact destination? We’ll use this for the hotel enquiry.' : 'Destination not in our list? We’ll use this for the hotel enquiry.'}</small>
+              </span>
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -9,10 +9,10 @@ button { cursor: pointer; }
 
 .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
 .nav { position: absolute; top: 0; left: 0; right: 0; z-index: 10; color: #fff; }
-.nav-inner { height: 82px; display: flex; align-items: center; justify-content: space-between; }
+.nav-inner { height: 100px; display: flex; align-items: center; justify-content: space-between; }
 .brand { display: flex; align-items: center; }
-.brand img { width: 240px;  height: 88px;  object-fit: contain; display: block; }
-@media (max-width: 768px) { .brand img { width: 145px; height: 55px;}}
+.brand img { width: 290px;  height: 100px;  object-fit: contain; display: block; }
+@media (max-width: 768px) { .brand img { width: 175px; height: 65px;}}
 .nav nav { display: flex; gap: 30px; }
 .nav a { color: rgba(255,255,255,.88); text-decoration: none; font-size: 14px; }
 .nav-cta { border: 1px solid rgba(255,255,255,.45); background: rgba(255,255,255,.1); color: #fff; padding: 11px 17px; border-radius: 10px; }

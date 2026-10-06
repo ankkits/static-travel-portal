@@ -39,11 +39,44 @@ Deno.serve(async req=>{
     }
     const {data,error}=await admin.from('travel_enquiries').insert(record).select('id,created_at').single()
     if(error) return json({error:error.message},500)
+
+    const enquiryHeading={
+      flight:'✈️ NEW FLIGHT ENQUIRY',
+      flight_hotel:'✈️🏨 NEW FLIGHT + HOTEL ENQUIRY',
+      hotel:'🏨 NEW HOTEL ENQUIRY',
+      holiday:'✦ NEW HOLIDAY ENQUIRY'
+    }[enquiryType] || 'NEW TRAVEL ENQUIRY'
+
     const lines=[
-      '✈️ NEW TRAVEL ENQUIRY','',`Type: ${enquiryType.replace('_',' + ')}`,`Customer: ${record.customer_name}`,`Phone: ${record.customer_phone}`,record.customer_email?`Email: ${record.customer_email}`:null,'',
-      `From: ${record.from_airport}`,`To / Destination: ${record.to_airport}`,`Departure / Check-in: ${record.departure_date||'Flexible'}`,`Return / Check-out: ${record.return_date||'Flexible'}`,
-      `Passengers: ${record.adults} Adult(s), ${record.children} Child(ren)`,`Rooms: ${record.hotel_rooms}`,`Cabin: ${record.cabin}`,record.package_name?`Package: ${record.package_name}`:null,record.tentative_dates?`Tentative dates: ${record.tentative_dates}`:null,'',`Enquiry ID: ${data.id}`,'Please review and contact the customer.'
+      enquiryHeading,'',
+      `Customer: ${record.customer_name}`,
+      `Phone: ${record.customer_phone}`,
+      record.customer_email?`Email: ${record.customer_email}`:null,'',
+      ...(isFlight || isFlightHotel?[
+        `From: ${record.from_airport}`,
+        `To: ${record.to_airport}`,
+        `Departure: ${record.departure_date||'Flexible'}`,
+        `Return: ${record.return_date||'Flexible'}`
+      ]:[]),
+      ...(isHotel?[
+        `Destination: ${record.to_airport}`,
+        `Check-in: ${record.departure_date||'Flexible'}`,
+        `Check-out: ${record.return_date||'Flexible'}`,
+        `Rooms: ${record.hotel_rooms}`
+      ]:[]),
+      ...(isHoliday?[
+        `Package: ${record.package_name||'Not specified'}`,
+        `Destination: ${destination||'Not specified'}`,
+        `Tentative dates: ${record.tentative_dates||'Flexible'}`
+      ]:[]),
+      '',
+      `Passengers: ${record.adults} Adult(s), ${record.children} Child(ren)`,
+      ...(isFlight || isFlightHotel?[`Cabin: ${record.cabin}`]:[]),
+      '',
+      `Enquiry ID: ${data.id}`,
+      'Please review and contact the customer.'
     ].filter(Boolean).join('\n')
+
     const resendKey=Deno.env.get("RESEND_API_KEY")
     const notificationFrom=Deno.env.get("NOTIFICATION_FROM")
     const notificationEmails=(Deno.env.get("NOTIFICATION_EMAILS")||"").split(",").map(x=>x.trim()).filter(Boolean)
