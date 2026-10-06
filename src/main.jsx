@@ -157,7 +157,7 @@ function App() {
     <header className="nav"><div className="container nav-inner"><div className="brand"><img src="/images/branding/logo-web.png" alt="Shreeji Travelogue" /></div><nav><a href="#flights">Flights</a><a href="#packages">Holidays</a><a href="#support">Support</a></nav><a className="nav-cta" href="#packages">Explore holidays</a></div></header>
     <main>
       <section className="hero" id="flights"><div className="hero-bg" /><div className="container hero-content">
-        <div className="eyebrow">FLIGHTS · HOTELS · HOLIDAYS · EXPERT GUIDANCE</div><h1>Travel more.<br /><em>Worry less.</em></h1><p className="hero-copy">Tell us where you want to go. Our team will find travel options, fares, hotels and packages that fit your trip.</p>
+        <div className="eyebrow">FLIGHTS · HOTELS · HOLIDAYS · EXPERT GUIDANCE</div><h2>Travel more.<br /><em>Worry less.</em></h2><p className="hero-copy">Tell us where you want to go. Our team will find travel options, fares, hotels and packages that fit your trip.</p>
         <form className="search-card" onSubmit={requestSearch}>
           <div className="trip-tabs">
             {Object.entries(typeLabel).map(([key,label]) => <button type="button" key={key} className={enquiryType===key?'active':''} onClick={() => selectType(key)}>{label}</button>)}
