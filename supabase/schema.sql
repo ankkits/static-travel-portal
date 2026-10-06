@@ -53,3 +53,7 @@ alter table public.travel_enquiries enable row level security;
 
 create index if not exists travel_enquiries_created_at_idx on public.travel_enquiries(created_at desc);
 create index if not exists travel_enquiries_status_idx on public.travel_enquiries(status);
+
+-- Current four-enquiry-type migration is kept separately in migration-four-enquiry-types.sql.
+-- Run that migration after this baseline schema when upgrading an existing project.
+alter table public.holiday_packages add column if not exists gallery_images text[] not null default '{}';
